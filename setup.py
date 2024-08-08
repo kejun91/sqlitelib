@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="sqlitelib",
-    version="0.1.1",
+    version="1.0.0",
     author="Jun Ke",
     author_email="kejun91@gmail.com",
     description="A sqlite lib that encapsulate common sqlite operations",
