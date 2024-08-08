@@ -23,9 +23,9 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
     __databasename__ = 'default'
     __tablename__ = None
 
-    up__id = Column(DataType.INTEGER, Constraint.PRIMARY_KEY, Constraint.AUTOINCREMENT)
-    up__created_date = Column(DataType.INTEGER, Default('CURRENT_TIMESTAMP'))
-    up__last_modified_date = Column(DataType.INTEGER, Default('CURRENT_TIMESTAMP'))
+    sqlitelib__id = Column(DataType.INTEGER, Constraint.PRIMARY_KEY, Constraint.AUTOINCREMENT)
+    sqlitelib__created_date = Column(DataType.INTEGER, Default('CURRENT_TIMESTAMP'))
+    sqlitelib__last_modified_date = Column(DataType.INTEGER, Default('CURRENT_TIMESTAMP'))
 
     def __init__(self, attribute_dict = {}):
         for key, value in attribute_dict.items():
