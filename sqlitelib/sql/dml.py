@@ -25,7 +25,7 @@ def insert(records:Union[List[SqliteModel],SqliteModel], replace = False):
         raise Exception(f'{ID} should not be included in insert call.')
     
     with lock:
-        s = Session(t.__databasename__)
+        s = Session(t.__databasepath__)
         s.begin()
 
         if issubclass(t, SqliteDynamicModel):
@@ -56,7 +56,7 @@ def upsert(records:Union[List[SqliteModel],SqliteModel], unique_column = None):
         return
 
     with lock:
-        s = Session(t.__databasename__)
+        s = Session(t.__databasepath__)
         s.begin()
 
         for r in records:
@@ -82,7 +82,7 @@ def update(record_or_records:Union[List[SqliteModel],SqliteModel]):
         return
 
     with lock:
-        s = Session(t.__databasename__)
+        s = Session(t.__databasepath__)
         s.begin()
 
         if issubclass(t, SqliteDynamicModel):
@@ -104,7 +104,7 @@ def delete(record_or_records):
         return
 
     with lock:
-        s = Session(t.__databasename__)
+        s = Session(t.__databasepath__)
         s.begin()
 
         for r in records:

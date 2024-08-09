@@ -10,7 +10,7 @@ from sqlitelib.table.column_enum import ID, LAST_MODIFIED_DATE, SystemColumn
 
 class SqliteModelMeta(ABCMeta):
     def __init__(cls, name, bases, dct):
-        if cls.__databasename__ is not None and cls.__tablename__ is not None:
+        if cls.__databasepath__ is not None and cls.__tablename__ is not None:
             if not cls.is_table_existed():
                 cls.initialize_table()
             else:
@@ -20,7 +20,7 @@ class SqliteModelMeta(ABCMeta):
         return cls.__tablename__
 
 class SqliteModel(ABC, metaclass=SqliteModelMeta):
-    __databasename__ = 'default'
+    __databasepath__ = 'default'
     __tablename__ = None
 
     sqlitelib__id = Column(DataType.INTEGER, Constraint.PRIMARY_KEY, Constraint.AUTOINCREMENT)
@@ -34,16 +34,16 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
     @classmethod
     def select_all(cls):
         query = f"SELECT * FROM {cls.__tablename__}"
-        return DB(cls.__databasename__).execute_select_query(query)
+        return DB(cls.__databasepath__).execute_select_query(query)
     
     @classmethod
     def select_by_id(cls,id):
         query = f"SELECT * FROM {cls.__tablename__} WHERE {ID} = ?"
-        return DB(cls.__databasename__).execute_select_query(query, (id,))[0]
+        return DB(cls.__databasepath__).execute_select_query(query, (id,))[0]
     
     @classmethod
     def select_from_query(cls, query, parameters = ()):
-        result = DB(cls.__databasename__).execute_select_query(query, parameters)
+        result = DB(cls.__databasepath__).execute_select_query(query, parameters)
 
         for r in result:
             for k,v in r.items():
@@ -55,11 +55,11 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
     
     @classmethod
     def execute_from_query(cls, query, parameters = ()):
-        return DB(cls.__databasename__).execute_query(query, parameters)
+        return DB(cls.__databasepath__).execute_query(query, parameters)
     
     @classmethod
     def get_db_column_names(cls) -> list:
-        return [column[1] for column in DB(cls.__databasename__).execute_and_fetchall(f'PRAGMA table_info({cls.__tablename__})')]
+        return [column[1] for column in DB(cls.__databasepath__).execute_and_fetchall(f'PRAGMA table_info({cls.__tablename__})')]
     
     @classmethod
     def get_model_columns(cls, custom = False) -> dict:
@@ -81,7 +81,7 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
     
     @classmethod
     def is_table_existed(cls) -> bool:
-        result = DB(cls.__databasename__).execute_select_query(f'SELECT name From sqlite_master where type = "table" and name = "{cls.__tablename__}"')
+        result = DB(cls.__databasepath__).execute_select_query(f'SELECT name From sqlite_master where type = "table" and name = "{cls.__tablename__}"')
         return len(result) > 0
     
     @classmethod
@@ -103,11 +103,11 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
         add_column_queries = [f"ALTER TABLE {cls.__tablename__} ADD COLUMN {cd}" for cd in column_defs]
         add_constraint_queries = [f"ALTER TABLE {cls.__tablename__} ADD CONSTRAINT {cls.__tablename__ + '_' + ''.join(random.choices(string.ascii_lowercase) for _ in range(3))} {fkd}" for fkd in foreign_keys_defs]
         for q in (add_column_queries + add_constraint_queries + index_queries):
-            DB(cls.__databasename__).execute_query(q)
+            DB(cls.__databasepath__).execute_query(q)
 
     @classmethod
     def initialize_table(cls):
-        database_name = cls.__databasename__
+        database_path = cls.__databasepath__
         table_name = cls.__tablename__
 
         column_defs = []
@@ -135,7 +135,7 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
         '''
 
         for q in ([create_table_query] + index_queries + [last_modified_date_fill_trigger]):
-            DB(database_name).execute_query(q)
+            DB(database_path).execute_query(q)
 
 class SqliteDynamicModel(SqliteModel):
     pass
@@ -164,5 +164,5 @@ def get_column_def_info(table_name:str, column_name:str, c:Column):
     column_defs.append(f"{column_name} {data_type} {' '.join(constraints)}")
     return column_defs, foreign_keys_defs, index_queries
 
-def create_model_class(base_class:SqliteModel, database_name):
-    return type(base_class.__name__, (base_class,), {"__databasename__":database_name})
+def create_model_class(base_class:SqliteModel, database_path):
+    return type(base_class.__name__, (base_class,), {"__databasepath__":database_path})
