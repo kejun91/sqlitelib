@@ -16,3 +16,20 @@ You can install `sqlitelib` using pip:
 
 ```bash
 pip install sqlitelib
+```
+
+## Usage
+```python
+from sqlitelib import SqliteModel, Column, Constraint, DataType
+
+class ExportJob(SqliteModel):
+    __databasepath__ = 'path/to/db.db'
+    __tablename__ = 'export_job'
+
+    job_type = Column(DataType.TEXT, Constraint.NOT_NULL)
+    status = Column(DataType.TEXT, Constraint.NOT_NULL)
+    completed_date = Column(DataType.INTEGER)
+    export_parameters_json = Column(DataType.TEXT)
+    description = Column(DataType.TEXT)
+    directory_path = Column(DataType.TEXT)
+```
