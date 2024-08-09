@@ -86,7 +86,7 @@ class SqliteModel(ABC, metaclass=SqliteModelMeta):
     
     @classmethod
     def add_new_columns(cls):
-        new_columns = {k:v for k,v in cls.get_model_columns().items() if k not in [tc.get('name') for tc in table_info(cls)]}
+        new_columns = {k:v for k,v in cls.get_model_columns().items() if k not in [tc.get('name') for tc in table_info(cls)] and k not in SystemColumn.list()}
         if len(new_columns) == 0:
             return
 
