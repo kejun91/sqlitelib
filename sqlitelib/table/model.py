@@ -1,5 +1,6 @@
 from abc import ABC, ABCMeta
 import json
+import os
 import random
 import string
 
@@ -11,6 +12,12 @@ from sqlitelib.table.column_enum import ID, LAST_MODIFIED_DATE, SystemColumn
 class SqliteModelMeta(ABCMeta):
     def __init__(cls, name, bases, dct):
         if cls.__databasepath__ is not None and cls.__tablename__ is not None:
+            if not os.path.isfile(cls.__databasepath__):
+                directory = os.path.dirname(cls.__databasepath__)
+
+                if not os.path.exists(directory):
+                    os.makedirs(directory, exist_ok=True)
+            
             if not cls.is_table_existed():
                 cls.initialize_table()
             else:
